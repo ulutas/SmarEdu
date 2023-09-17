@@ -10,12 +10,11 @@ exports.createCourse = async (req, res) => {
       category: req.body.category,
       user: req.session.userID,
     });
+    req.flash('success', `${course.name} has been created successfully.`);
     res.status(201).redirect('users/dashboard');
   } catch (error) {
-    res.status(400).json({
-      status: 'fail',
-      error,
-    });
+    req.flash('error', `Wrong something happened!`);
+    res.status(400).redirect('users/dashboard');
   }
 };
 
@@ -43,7 +42,9 @@ exports.getAllCourses = async (req, res) => {
         { name: { $regex: '.*' + filter.name + '.*', $options: 'i' } },
         { category: filter.category },
       ],
-    }).sort('-createdAt').populate('user');
+    })
+      .sort('-createdAt')
+      .populate('user');
     const categories = await Category.find();
 
     res.status(200).render('courses', {
@@ -107,5 +108,35 @@ exports.releaseCourse = async (req, res) => {
       status: 'fail',
       error,
     });
+  }
+};
+exports.deleteCourse = async (req, res) => {
+  try {
+    const course = await Course.findOneAndRemove({ slug: req.params.slug });
+    const usersToUpdate = await User.find({ courses: course._id });
+    for (const user of usersToUpdate) {
+      user.courses.pull(course._id);
+      await user.save();
+    }
+    req.flash('success', `Course has been deleted successfully.`);
+    res.status(200).redirect('/users/dashboard');
+  } catch (error) {
+    req.flash('error', `Wrong something happened!`);
+    res.status(400).redirect('/users/dashboard');
+  }
+};
+exports.updateCourse = async (req, res) => {
+  try {
+    const course = await Course.findOne({ slug: req.params.slug });
+    course.name = req.body.name;
+    course.description = req.body.description;
+    course.category = req.body.category;
+    course.save();
+
+    req.flash('success', `Course has been updated successfully.`);
+    res.status(200).redirect('/users/dashboard');
+  } catch (error) {
+    req.flash('error', `Wrong something happened!`);
+    res.status(400).redirect('/users/dashboard');
   }
 };

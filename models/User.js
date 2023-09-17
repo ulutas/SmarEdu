@@ -32,10 +32,15 @@ const UserSchema = new Schema({
 UserSchema.pre('save', function (next) {
   const user = this;
   if (!user.isModified('password')) return next();
-  bcrypt.hash(user.password, 10, (error, hash) => {
-    user.password = hash;
-    next();
-  });
+  
+  bcrypt.genSalt(10, function(err, salt) {
+    if (err) return next(err);
+    bcrypt.hash(user.password, salt, (error, hash) => {
+      if (err) return next(err);
+      user.password = hash;
+      next();
+    });
+  })
 });
 
 const User = mongoose.model('User', UserSchema);
