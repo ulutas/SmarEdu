@@ -13,6 +13,7 @@ const userRoute = require('./routes/userRoute');
 const app = express();
 
 //Connect DB
+mongoose.set("strictQuery", false);
 mongoose
   .connect('mongodb+srv://ulutasuomer:shjdgQVZ8sVktbKB@cluster0.eh60uvf.mongodb.net/smartedu-db?retryWrites=true&w=majority', {
     useNewUrlParser: true,
