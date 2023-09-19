@@ -41,7 +41,7 @@ app.use(
     resave: false,
     saveUninitialized: true,
     store: MongoStore.create({
-      mongoUrl: 'mongodb://127.0.0.1:27017/smartedu-db',
+      mongoUrl: 'mongodb+srv://ulutasuomer:shjdgQVZ8sVktbKB@cluster0.eh60uvf.mongodb.net/smartedu-db?retryWrites=true&w=majority',
     }),
   })
 );
